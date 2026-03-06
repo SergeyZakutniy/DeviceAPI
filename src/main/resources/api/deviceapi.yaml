@@ -1,0 +1,248 @@
+openapi: 3.0.2
+info:
+  title: Device API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: v1 implementation of Device API
+
+paths:
+  /devices:
+    post:
+      tags:
+        - Devices
+      summary: Create a new device
+      operationId: createDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeviceRequest'
+      responses:
+        '201':
+          description: Device was created successfully
+        '400':
+          description: Bad Request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - Devices
+      operationId: findDevices
+      summary: Fetch all devices
+      parameters:
+        - name: brand
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeviceState'
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Device not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /devices/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Fetch a single device by its ID
+      operationId: getDeviceById
+      tags:
+        - Devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique identifier of the device
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Device found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '404':
+          description: Device not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Devices
+      operationId: replaceDeviceById
+      summary: Full update of the device
+      description: Full update of the device
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Devices
+      operationId: updateDeviceById
+      summary: Partial update of the device
+      description: Partial update of the device
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Remove a device by ID
+      operationId: removeDeviceById
+      tags:
+        - Devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique identifier of the device
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Device was removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '500':
+          description: Error while removing the device
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreateDeviceRequest:
+      type: object
+      required:
+        - name
+        - brand
+      properties:
+        name:
+          type: string
+          example: "iPhone 15 Pro"
+          minLength: 2
+          maxLength: 100
+        brand:
+          type: string
+          example: "Apple"
+          minLength: 2
+          maxLength: 50
+        state:
+          $ref: '#/components/schemas/DeviceState'
+          default: available
+
+    UpdateDeviceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+        brand:
+          type: string
+          minLength: 2
+        state:
+          $ref: '#/components/schemas/DeviceState'
+      description: "For PUT request all fields must be present, for PATCH - all fields are optional"
+
+    DeviceState:
+      type: string
+      enum: [available, in-use, inactive]
+
+    DeviceResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        brand: { type: string }
+        state: { $ref: '#/components/schemas/DeviceState' }
+        creationTime: { type: string, format: date-time, readOnly: true }
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - message
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-03-06T22:15:00Z"
+        status:
+          type: integer
+          format: int32
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Device with ID: 1 not found"
