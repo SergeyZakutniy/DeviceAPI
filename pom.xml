@@ -96,6 +96,7 @@
                             <useJakartaEe>true</useJakartaEe>
                             <interfaceOnly>true</interfaceOnly>
                             <useTags>true</useTags>
+                            <useBeanValidation>true</useBeanValidation>
                             <skipDefaultInterface>true</skipDefaultInterface>
                             <openApiNullable>false</openApiNullable>
                             <unhandledException>true</unhandledException>

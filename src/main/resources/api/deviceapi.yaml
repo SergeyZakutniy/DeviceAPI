@@ -22,6 +22,10 @@ paths:
       responses:
         '201':
           description: Device was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
         '400':
           description: Bad Request error
           content:
@@ -49,9 +53,25 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/DeviceState'
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Elements count on the single page (max. 100 records per page)
+          schema:
+            type: integer
+            default: 20
       responses:
         '200':
-          description: OK
+          description: A list of devices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePageResponse'
         '404':
           description: Device not found.
           content:
@@ -72,7 +92,7 @@ paths:
         required: true
         schema:
           type: string
-          format: uuid
+          format: int64
     get:
       summary: Fetch a single device by its ID
       operationId: getDeviceById
@@ -85,7 +105,7 @@ paths:
           description: The unique identifier of the device
           schema:
             type: string
-            format: uuid
+            format: int64
       responses:
         '200':
           description: Device found
@@ -112,10 +132,26 @@ paths:
       operationId: replaceDeviceById
       summary: Full update of the device
       description: Full update of the device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceRequest'
       responses:
         '200':
-          description: Updated
+          description: Device was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
         '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
           description: Bad Request
           content:
             application/json:
@@ -134,11 +170,27 @@ paths:
       operationId: updateDeviceById
       summary: Partial update of the device
       description: Partial update of the device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceRequest'
       responses:
         '200':
-          description: Updated
+          description: Device was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -162,14 +214,10 @@ paths:
           description: The unique identifier of the device
           schema:
             type: string
-            format: uuid
+            format: int64
       responses:
         '200':
           description: Device was removed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DeviceResponse'
         '500':
           description: Error while removing the device
           content:
@@ -197,7 +245,7 @@ components:
           maxLength: 50
         state:
           $ref: '#/components/schemas/DeviceState'
-          default: available
+          default: AVAILABLE
 
     UpdateDeviceRequest:
       type: object
@@ -214,12 +262,30 @@ components:
 
     DeviceState:
       type: string
-      enum: [available, in-use, inactive]
+      enum: [AVAILABLE, IN_USE, INACTIVE]
+
+    DevicePageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceResponse'
+        totalElements:
+          type: integer
+          format: int64
+          description: "Total count of elements in DB"
+        totalPages:
+          type: integer
+          description: "Total number of pages"
+        number:
+          type: integer
+          description: "Current page number"
 
     DeviceResponse:
       type: object
       properties:
-        id: { type: string, format: uuid }
+        id: { type: string, format: int64 }
         name: { type: string }
         brand: { type: string }
         state: { $ref: '#/components/schemas/DeviceState' }
