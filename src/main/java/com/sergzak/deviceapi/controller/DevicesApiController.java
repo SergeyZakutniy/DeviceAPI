@@ -8,16 +8,14 @@ import com.sergzak.deviceapi.v1.dto.DeviceResponse;
 import com.sergzak.deviceapi.v1.dto.DeviceState;
 import com.sergzak.deviceapi.v1.dto.PatchDeviceRequest;
 import com.sergzak.deviceapi.v1.dto.PutDeviceRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/v1/")
 public class DevicesApiController implements DevicesApi
 {
-    public static final Logger LOG = LoggerFactory.getLogger(DevicesApiController.class);
-
     private final DeviceService deviceService;
 
     public DevicesApiController(final DeviceService deviceService) {

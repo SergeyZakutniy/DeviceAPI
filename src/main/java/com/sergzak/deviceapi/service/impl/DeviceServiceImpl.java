@@ -22,6 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -75,6 +78,7 @@ public class DeviceServiceImpl implements DeviceService
     }
 
     @Override
+    @Cacheable(value = "devices", key = "#id")
     @Transactional(readOnly = true)
     public DeviceResponse findDeviceById(final Long id)
     {
@@ -82,6 +86,7 @@ public class DeviceServiceImpl implements DeviceService
     }
 
     @Override
+    @CacheEvict(value = "devices", key = "#id")
     @Transactional
     public void removeDeviceById(final Long id)
     {
@@ -98,6 +103,7 @@ public class DeviceServiceImpl implements DeviceService
     }
 
     @Override
+    @CachePut(value = "devices", key = "#id")
     @Transactional
     public DeviceResponse replaceDeviceById(final Long id, final PutDeviceRequest putDeviceRequest)
     {
@@ -117,23 +123,22 @@ public class DeviceServiceImpl implements DeviceService
     }
 
     @Override
+    @CachePut(value = "devices", key = "#id")
     @Transactional
     public DeviceResponse updateDeviceById(final Long id, final PatchDeviceRequest patchDeviceRequest)
     {
         final Device device = getDeviceById(id);
         if (!canBeUpdated(device, patchDeviceRequest))
         {
-            LOG.error("Device with id {} cannot be updated because it is in use.", id);
+            LOG.error("Device with id: {} cannot be updated because it is in use.", id);
             throw new DeviceInUseException(String.format("Device with id: %s cannot be updated because the status is: IN_USE", id));
         }
 
         updateIfChanged(patchDeviceRequest.getName(), device::getName, device::setName);
         updateIfChanged(patchDeviceRequest.getBrand(), device::getBrand, device::setBrand);
-        final String updatedStatus = patchDeviceRequest.getState() != null ? patchDeviceRequest.getState().getValue() : null;
-        if (updatedStatus != null)
-        {
-            updateIfChanged(DeviceStatus.fromValue(updatedStatus), device::getStatus, device::setStatus);
-        }
+        Optional.ofNullable(patchDeviceRequest.getState())
+            .map(state -> DeviceStatus.fromValue(state.getValue()))
+            .ifPresent(newStatus -> updateIfChanged(newStatus, device::getStatus, device::setStatus));
 
         deviceRepository.save(device);
         LOG.debug("Device with id: {} was successfully updated.", id);
