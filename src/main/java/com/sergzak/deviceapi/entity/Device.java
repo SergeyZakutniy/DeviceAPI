@@ -9,11 +9,14 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(name = "devices")
+@Table(name = "devices",
+    indexes = { @Index(name = "idx_device_brand_state", columnList = "brand, status") }
+)
 public class Device
 {
     @Id
@@ -27,7 +30,7 @@ public class Device
     private String brand;
 
     @Enumerated(EnumType.STRING)
-    private DeviceState state = DeviceState.AVAILABLE;
+    private DeviceStatus status;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
@@ -63,14 +66,14 @@ public class Device
         this.brand = brand;
     }
 
-    public DeviceState getState()
+    public DeviceStatus getStatus()
     {
-        return state;
+        return status;
     }
 
-    public void setState(final DeviceState state)
+    public void setStatus(final DeviceStatus status)
     {
-        this.state = state;
+        this.status = status;
     }
 
     public LocalDateTime getCreationTime()

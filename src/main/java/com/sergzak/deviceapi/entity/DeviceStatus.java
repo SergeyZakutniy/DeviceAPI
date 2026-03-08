@@ -1,6 +1,6 @@
 package com.sergzak.deviceapi.entity;
 
-public enum DeviceState
+public enum DeviceStatus
 {
     AVAILABLE("AVAILABLE"),
 
@@ -10,7 +10,7 @@ public enum DeviceState
 
     private final String value;
 
-    DeviceState(String value) {
+    DeviceStatus(String value) {
         this.value = value;
     }
 
@@ -19,8 +19,8 @@ public enum DeviceState
         return String.valueOf(value);
     }
 
-    public static DeviceState fromValue(String value) {
-        for (DeviceState state : DeviceState.values()) {
+    public static DeviceStatus fromValue(String value) {
+        for (DeviceStatus state : DeviceStatus.values()) {
             if (state.value.equals(value)) {
                 return state;
             }

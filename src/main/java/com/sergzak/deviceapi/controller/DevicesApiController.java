@@ -6,13 +6,11 @@ import com.sergzak.deviceapi.v1.dto.CreateDeviceRequest;
 import com.sergzak.deviceapi.v1.dto.DevicePageResponse;
 import com.sergzak.deviceapi.v1.dto.DeviceResponse;
 import com.sergzak.deviceapi.v1.dto.DeviceState;
-import com.sergzak.deviceapi.v1.dto.UpdateDeviceRequest;
-import jakarta.validation.Valid;
-import org.apache.commons.lang3.StringUtils;
+import com.sergzak.deviceapi.v1.dto.PatchDeviceRequest;
+import com.sergzak.deviceapi.v1.dto.PutDeviceRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,44 +25,40 @@ public class DevicesApiController implements DevicesApi
     }
 
     @Override
-    public ResponseEntity<DeviceResponse> createDevice(@Valid @RequestBody final CreateDeviceRequest createDeviceRequest) throws Exception
+    public ResponseEntity<DeviceResponse> createDevice(final CreateDeviceRequest createDeviceRequest) throws Exception
     {
-        LOG.debug("Creating a new device");
-        final DeviceResponse deviceResponse = deviceService.createNewDevice(createDeviceRequest);
-        LOG.debug("Device with id: {} was created successfully", deviceResponse.getId());
-        return ResponseEntity.ok().body(deviceResponse);
+        return ResponseEntity.ok().body(deviceService.createNewDevice(createDeviceRequest));
     }
 
     @Override
     public ResponseEntity<DevicePageResponse> findDevices(final String brand, final DeviceState state, final Integer page,
         final Integer size) throws Exception
     {
-        LOG.debug("Looking for devices with brand: {} and state: {}", brand, state != null ? state.getValue() : StringUtils.EMPTY);
-        final DevicePageResponse devicePageResponse = deviceService.findDevices(brand, state, page, size);
-        return ResponseEntity.ok().body(devicePageResponse);
+        return ResponseEntity.ok().body(deviceService.findDevices(brand, state, page, size));
     }
 
     @Override
-    public ResponseEntity<DeviceResponse> getDeviceById(final String id) throws Exception
+    public ResponseEntity<DeviceResponse> getDeviceById(final Long id) throws Exception
     {
-        return null;
+        return ResponseEntity.ok().body(deviceService.findDeviceById(id));
     }
 
     @Override
-    public ResponseEntity<Void> removeDeviceById(final String id) throws Exception
+    public ResponseEntity<Void> removeDeviceById(final Long id) throws Exception
     {
-        return null;
+        deviceService.removeDeviceById(id);
+        return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<DeviceResponse> replaceDeviceById(final String id, final UpdateDeviceRequest updateDeviceRequest) throws Exception
+    public ResponseEntity<DeviceResponse> replaceDeviceById(final Long id, final PutDeviceRequest putDeviceRequest) throws Exception
     {
-        return null;
+        return ResponseEntity.ok().body(deviceService.replaceDeviceById(id, putDeviceRequest));
     }
 
     @Override
-    public ResponseEntity<DeviceResponse> updateDeviceById(final String id, final UpdateDeviceRequest updateDeviceRequest) throws Exception
+    public ResponseEntity<DeviceResponse> updateDeviceById(final Long id, final PatchDeviceRequest patchDeviceRequest) throws Exception
     {
-        return null;
+        return ResponseEntity.ok().body(deviceService.updateDeviceById(id, patchDeviceRequest));
     }
 }
