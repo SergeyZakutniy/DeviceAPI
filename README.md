@@ -38,7 +38,7 @@ But please be aware that you cannot update a device with new 'brand' or 'name' i
 7. **REMOVE /devices/{id}**: Removes a device from the database. If such a device doesn't exist, you receive an exception.
 
 ### Available metrics
-**All metrics**: http://localhost:8080/actuator/metrics
-**Env props**: http://localhost:8080/actuator/env
-**Config props**: http://localhost:8080/actuator/configprops
-**App healthiness**: http://localhost:8080/actuator/health
+- **All metrics**: http://localhost:8080/actuator/metrics
+- **Env props**: http://localhost:8080/actuator/env
+- **Config props**: http://localhost:8080/actuator/configprops
+- **App healthiness**: http://localhost:8080/actuator/health
